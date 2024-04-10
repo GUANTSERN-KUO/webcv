@@ -1,0 +1,574 @@
+---
+title: "Design Dashboards with Tableau"
+author: "Guan Tsern Kuo"
+date: "West Chester University"
+output:
+  html_document: 
+    toc: yes
+    toc_float: yes
+    number_sections: yes
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: true
+    theme: lumen
+editor_options:
+  chunk_output_type: inline
+---
+
+
+<style type="text/css">
+
+/* Table of content - navigation */
+div#TOC li {
+    list-style:none;
+    background-color:lightgray;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #780c0c;
+}
+
+
+/* Title fonts */
+h1.title {
+  font-size: 24px;
+  color: darkblue;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-variant-caps: normal;
+}
+h4.author { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: navy;
+  text-align: center;
+}
+h4.date { 
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: darkblue;
+  text-align: center;
+}
+
+/* Section headers */
+h1 {
+    font-size: 22px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h2 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { 
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+h4 {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Decoration of hyperlinks  */
+
+/* unvisited link */
+a:link {
+  color: green;
+}
+
+/* visited link */
+a:visited {
+  color: purple;
+}
+
+/* mouse over link */
+a:hover {
+  color: red;
+}
+
+/* selected link */
+a:active {
+  color: yellow;
+}
+</style>
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("sf")) {
+   install.packages("sf")
+   library(sf)
+}
+if (!require("terra")) {
+   install.packages("terra")
+   library(terra)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("dplyr")) {
+   install.packages("dplyr")
+   library(dplyr)
+}
+if (!require("png")) {
+    install.packages("png")             
+    library("png")
+}
+if (!require("spData")) {
+    install.packages("spData")             
+    library("spData")
+}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+
+### ggplot and extensions
+if (!require("ggplot2")) {
+    install.packages("ggplot2")              
+    library("ggplot2")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+
+if (!require("sf")) {
+    install.packages("sf")              
+    library("sf")
+}
+if (!require("tigris")) {
+    install.packages("tigris")              
+    library("tigris")
+}
+if (!require("mapview")) {
+    install.packages("mapview")              
+    library("mapview")
+}
+if (!require("pander")) {
+    install.packages("pander")              
+    library("pander")
+}
+if (!require("lattice")) {
+    install.packages("lattice")
+library("lattice")
+}
+if (!require("sp")) {
+    install.packages("sp")
+library("sp")
+}
+if (!require("leaflet")) {
+    install.packages("leaflet")
+library("leaflet")
+}
+if (!require("leafpop")) {
+    install.packages("leafpop")
+library("leafpop")
+}
+
+
+
+if (!require("htmlwidgets")) {
+    install.packages("htmlwidgets")
+library("htmlwidgets")
+}
+if (!require("leaflet.extras")) {
+    install.packages("leaflet.extras")
+library("leaflet.extras")
+}
+if (!require("htmltools")) {
+    install.packages("htmltools")
+library("htmltools")
+}
+if(!require("png")){
+  install.packages("png")
+  library(png)
+}
+if(!require("viridis")){
+  install.packages("viridis")
+  library(viridis)
+}
+if(!require("ggmap")){
+  install.packages("ggmap")
+  library(ggmap)
+}
+if(!require("webshot")){
+  install.packages("webshot")
+  library(webshot)
+}
+if(!require("htmlwidgets")){
+  install.packages("htmlwidgets")
+  library(htmlwidgets)
+}
+if(!require("animation")){
+  install.packages("animation")
+  library(animation)
+}
+if(!require("gifski")){
+  install.packages("gifski")
+  library(gifski)
+}
+if(!require("htmlTable")){
+  install.packages("htmlTable")
+  library(htmlTable)
+}
+if(!require("magrittr")){
+  install.packages("magrittr")
+  library(magrittr)
+}
+
+
+
+
+
+if (!require("scales")) {
+    install.packages("scales")              
+    library("scales")
+}
+
+if (!require("tidyverse")) {
+    install.packages("tidyverse")              
+    library("tidyverse")
+}
+
+if (!require("dplyr")) {
+    install.packages("dplyr")              
+    library("dplyr")
+}
+if (!require("lubridate")) {
+    install.packages("lubridate")              
+    library("lubridate")
+}
+if (!require("gplots")) {
+    install.packages("gplots")              
+    library("gplots")
+}
+if (!require("leaflet")) {
+    install.packages("leaflet")              
+    library("leaflet")
+}
+if (!require("maps")) {
+    install.packages("maps")              
+    library("maps")
+}
+if (!require("htmltools")) {
+    install.packages("htmltools")              
+    library("htmltools")
+}
+if (!require("htmlwidgets")) {
+    install.packages("htmlwidgets")              
+    library("htmlwidgets")
+}
+if (!require("leaflegend")) {
+    install.packages("leaflegend")              
+    library("leaflegend")
+}
+if (!require("geojsonio")) {
+    install.packages("geojsonio")              
+    library("geojsonio")
+}
+
+
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+if (!require("tidyr")) {
+   install.packages("tidyr")
+   library(tidyr)
+}
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("cowplot")) {
+   install.packages("cowplot")
+   library(cowplot)
+}
+if (!require("latex2exp")) {
+   install.packages("latex2exp")
+   library(latex2exp)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+if (!require("png")) {
+    install.packages("png")             # Install png package
+    library("png")
+}
+if (!require("RCurl")) {
+    install.packages("RCurl")             # Install RCurl package
+    library("RCurl")
+}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+if (!require("grDevices")) {
+    install.packages("grDevices")              
+    library("grDevices")
+}
+if (!require("jpeg")) {
+    install.packages("jpeg")              
+    library("jpeg")
+}
+if (!require("VGAM")) {
+    install.packages("VGAM")              
+    library("VGAM")
+}
+if (!require("MASS")) {
+    install.packages("MASS")              
+    library("MASS")
+}
+if (!require("nnet")) {
+    install.packages("nnet")              
+    library("nnet")
+}
+if (!require("cluster")) {
+    install.packages("cluster")              
+    library("cluster")
+}
+if (!require("dplyr")) {
+    install.packages("dplyr")              
+    library("dplyr")
+}
+if (!require("odbc")) {
+   install.packages("odbc")
+   library(odbc)
+}
+if (!require("DBI")) {
+   install.packages("DBI")
+   library(DBI)
+}
+if (!require("RSQLite")) {
+   install.packages("RSQLite")
+   library(RSQLite)
+}
+
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("data.table")) {
+   install.packages("data.table")
+   library(data.table)
+}
+
+
+# knitr::opts_knit$set(root.dir = "C:\\STA490\\w05")
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+
+db <- dbConnect(RSQLite::SQLite(), dbname = "sql.sqlite")
+knitr::opts_chunk$set(connection = "db")
+
+
+```
+
+
+# Introduction 
+
+Individual worksheets in Tableau can give you powerful and efficient data presentation, but sometimes it makes sense to combine worksheets into a single dashboard. By combining different visualizations into a single dashboard, audience can analyze the results of comparing data in context with each other. This is much more intuitive than viewing visualizations individually. In addition to this one obvious benefit, Tableau offers a variety of technical features that allow you to control the user experience and even make the various components of a dashboard interact with each other. In this case, we'll use the dashboard as an example of presenting data results.
+
+# Sturdy Purpose 
+
+Asia Real Estate will be launching a new construction of house project in northern Taiwan and wants to predict the newest home opening prices. In addition, real estate prices are a current concern. The real estate company will use 2012 and 2013 housing price information to accurately forecast home prices, predicting whether house age and convenient location will have an impact on home prices. Finally, the company will give a reasonable price for home openings in the northern part of Taiwan. In the future, it will launch new construction projects for home sales.
+
+
+# Data Preparation 
+
+There is raw data available on the Github website (https://raw.githubusercontent.com/GUANTSERN-KUO/webcv/main/w10/Realestate.csv). The raw data has 8 variables. We create 2 additional category variables, including "house_age_group" variable, "nearest_MRT_distance_group" variable. There are 4 category variables and 6 continuous variables in our final data set.
+
+ 
+
+
+```{r}
+real_estate = read.csv("https://raw.githubusercontent.com/GUANTSERN-KUO/webcv/main/w10/Realestate.csv")
+
+```
+
+```{r}
+
+real_estate <- real_estate %>% 
+  mutate(
+    # Create categories
+    house_age_group = dplyr::case_when(
+      HouseAge <= 5            ~ "0 to 5",
+      HouseAge > 5 & HouseAge <= 10 ~ "5 to 10",
+      HouseAge > 10 & HouseAge <= 20 ~ "10 to 20",
+      HouseAge > 20             ~ "> 20"
+    ),
+    
+   # age_group = factor(
+ #    age_group,
+ #     level = c("0-5", "5-10","10-20", "> 20")
+ #   )
+  ) %>% 
+  mutate(
+    # Create categories
+    nearest_MRT_distance_group = dplyr::case_when(
+      Distance2MRT <= 500            ~ "0-500",
+      Distance2MRT > 500 & Distance2MRT <= 1000 ~ "500-1000",
+      Distance2MRT > 1000 & Distance2MRT <= 2000 ~ "1000-2000",
+      Distance2MRT > 2000  ~ "> 2000"
+    ),
+    # Convert to factor
+    nearest_MRT_distance_group = factor(
+      nearest_MRT_distance_group,
+      level = c("0-500", "500-1000","1000-2000", "> 2000")
+    )
+  
+  )
+
+```
+
+
+
+```{r}
+
+# Writing data to a CSV file
+write.csv(real_estate, "real_estate.csv")
+
+
+```
+
+```{r eval=requireNamespace("DT", quietly=TRUE), echo=FALSE}
+DT::datatable((real_estate), fillContainer = FALSE, options = list(pageLength = 6 )  )
+
+```
+
+```{r}
+summary(real_estate)
+
+```
+A total of 414 records. The highest price for a unit is 117.5 and the lowest is 7.6. The median age of the houses is 10, and the highest house is 43 years. Also, the shortest distance between the house and the MRT is 23 meters and the farthest distance is 6488 meters.
+
+# Dashboards Output 
+
+
+<table border = 0 bordercolor="darkgreen" bgcolor='#f6f6f6'  width=100%  align = center>
+<tr>
+<td>
+
+
+<div class='tableauPlaceholder' id='viz1712759338025' style='position: relative'>
+
+<noscript><a href='#'><img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Ho&#47;HousePriceUnitinTaiwan&#47;RESEARCHDashboard&#47;1_rss.png' style='border: none' /></a>
+</noscript><object class='tableauViz'  style='display:none;'>
+
+<param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
+<param name='embed_code_version' value='3' /> <param name='site_root' value='' />
+<param name='name' value='HousePriceUnitinTaiwan&#47;RESEARCHDashboard' />
+<param name='tabs' value='yes' /><param name='toolbar' value='yes' />
+<param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Ho&#47;HousePriceUnitinTaiwan&#47;RESEARCHDashboard&#47;1.png' /> 
+<param name='animate_transition' value='yes' />
+<param name='display_static_image' value='yes' />
+<param name='display_spinner' value='yes' />
+<param name='display_overlay' value='yes' />
+<param name='display_count' value='yes' />
+<param name='language' value='en-US' />
+
+</object></div>                
+<script type='text/javascript'> 
+  var divElement = document.getElementById('viz1712759338025');                    
+  var vizElement = divElement.getElementsByTagName('object')[0];                    
+  if ( divElement.offsetWidth > 800 ) { vizElement.style.minWidth='1000px';vizElement.style.maxWidth='100%';vizElement.style.minHeight='850px';vizElement.style.maxHeight=(divElement.offsetWidth*0.75)+'px';} 
+  else if ( divElement.offsetWidth > 500 ) { vizElement.style.minWidth='1000px';vizElement.style.maxWidth='100%';vizElement.style.minHeight='850px';vizElement.style.maxHeight=(divElement.offsetWidth*0.75)+'px';} 
+  else { vizElement.style.width='100%';vizElement.style.minHeight='2350px';vizElement.style.maxHeight=(divElement.offsetWidth*1.77)+'px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                
+
+
+</script>
+
+</td>
+</tr>
+</table>
+
+
+## Over View the Map
+
+In the upper right dashboard, we use the distance of the house from the MRT as a grouping. The purple circle means that the house is within 500 meters of the MRT. The green dots represent the distance of the house from the MRT, which is more than 2,000 meters. We can overview the whole area with information such as the age of the house and the price of the house unit.
+
+
+### Age Distribution of Housing
+
+The transaction year does not have a significant impact on the age distribution of the housing unit. In 2012, the housing age group of 10 to 20 years had the highest percentage (37%) and the housing age group of 5 to 10 years had the lowest percentage (9.5%).
+
+## House Age Factor 
+
+### Series Plot
+
+From the series plot (HOUSE AGE of sheet name), there is no big difference between the 2012 year transaction data and 2013 year transaction data. Also, there is no big difference between the year of a house and house price unit. This phenomenon means that the price of a new house is not necessarily higher than that of an old one.
+
+### Scatter Plot
+
+From the scatter plot (SCATTER HOUSE AGE of sheet name), there is no significant difference between the year of a house and house price unit. In exception of a few cases of luxury housing, the selling price of a house is not related to the year of the house.
+
+
+## MRT Distance Factor 
+
+### Bar Plot
+
+Bar plot at the bottom right of the dashboard (MRT of sheet name). There is no effect on the results of the 2012 transaction data and the 2013 transaction data. In 2012, the purple bar is the closest house to the MRT that has the highest median house price at 43 and the green bar is the furthest house to the MRT that has the lowest median house price at 21. The median house price drops significantly as the house moves farther away from the MRT.
+
+### Scatter Plot
+
+From the scatter plot (DISTANCE of sheet name), In 2012, the majority of homes under five years old and within 500 meters of a MTR station had higher transaction prices. Regardless of transaction year data, the more accessible the house is, the closer it is to the MRT, the more transaction data it has.
+
+# Conclusion
+
+From the transaction data of these two years in Taiwan, the price quoted for new construction can be referenced to the overall price of housing in the target area in Taiwan, regardless of the year of the home. Most of the properties are less than 5 years old and within 500 meters of a MTR station are expected to sell at a good house price unit. Finally, the farther a house is from a MRT station, the lower the median home price will be.
+
